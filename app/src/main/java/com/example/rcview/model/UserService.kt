@@ -7,19 +7,19 @@ typealias UserListener = (users: List<User>) -> Unit
 
 class UserService {
     private val listeners = mutableSetOf<UserListener>()
-    private val users = mutableListOf<User>()
+    private var users = mutableListOf<User>()
 
     init {
         val faker = Faker.instance()
         IMAGES.shuffle()
-        val users = (1..100).map {
+        users = (1..100).map {
             User(
                 id = it.toLong(),
                 name = faker.name().name(),
                 company = faker.company().name(),
                 photo = IMAGES[it % IMAGES.size]
             )
-        }
+        }.toMutableList()
     }
 
     fun getUsers(): List<User> {
@@ -44,12 +44,12 @@ class UserService {
     }
 
     fun addListener(listener: UserListener) {
-        listeners.add { listener }
+        listeners.add(listener)
         listener.invoke(users)
     }
 
     fun removeListener(listener: UserListener) {
-        listeners.remove { listener }
+        listeners.remove(listener)
     }
 
     private fun notifyChanges() {
