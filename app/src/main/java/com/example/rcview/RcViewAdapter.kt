@@ -1,10 +1,12 @@
 package com.example.rcview
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.bumptech.glide.Glide
@@ -15,6 +17,29 @@ interface UserAction {
     fun onUserMove(user: User, moveBy: Int)
     fun onUserDelete(user: User)
     fun onUserInfo(user: User)
+    fun onUserFire(user: User)
+
+}
+
+class UsersDiffCallback(
+    private val oldUsers: List<User>,
+    private val newUsers: List<User>
+) : DiffUtil.Callback() {
+    override fun getOldListSize(): Int {
+        return oldUsers.size
+    }
+
+    override fun getNewListSize(): Int {
+        return newUsers.size
+    }
+
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldUsers[oldItemPosition].id == newUsers[newItemPosition].id
+    }
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldUsers[oldItemPosition] == newUsers[newItemPosition]
+    }
 
 }
 
@@ -23,8 +48,10 @@ class RcViewAdapter(
 ) : Adapter<RcViewAdapter.UsersViewHolder>(), View.OnClickListener {
     var users: List<User> = emptyList()
         set(newValue) {
+            val diffCallback = UsersDiffCallback(field, newValue)
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
             field = newValue
-            notifyDataSetChanged()
+            diffResult.dispatchUpdatesTo(this)
         }
 
     override fun onClick(v: View) {
@@ -40,25 +67,39 @@ class RcViewAdapter(
         val context = view.context
         val position = users.indexOfFirst { it.id == user.id }
         val popupMenu = PopupMenu(context, view)
-        popupMenu.menu.add(ID_MOVE_UP, Menu.NONE, 0, context.getString(R.string.move_up)).apply {
+        popupMenu.menu.add(0, ID_MOVE_UP, Menu.NONE, context.getString(R.string.move_up)).apply {
             isEnabled = position > 0
         }
-        popupMenu.menu.add(ID_MOVE_DOWN, Menu.NONE, 0, context.getString(R.string.move_up)).apply {
-            isEnabled = position < users.size - 1
+        popupMenu.menu.add(0, ID_MOVE_DOWN, Menu.NONE, context.getString(R.string.move_down))
+            .apply {
+                isEnabled = position < users.size - 1
+            }
+        popupMenu.menu.add(0, ID_REMOVE, Menu.NONE, context.getString(R.string.remove))
+        if (user.company.isNotBlank()) {
+            popupMenu.menu.add(0, ID_FIRE, Menu.NONE, context.getString(R.string.unemployed))
         }
-        popupMenu.menu.add(ID_REMOVE, Menu.NONE, 0, context.getString(R.string.remove))
 
         popupMenu.setOnMenuItemClickListener {
             when (it.itemId) {
-                ID_MOVE_UP -> {userAction.onUserMove(user,-1)}
-                ID_MOVE_DOWN -> {userAction.onUserMove(user,1)}
-                ID_REMOVE -> {userAction.onUserDelete(user)}
+                ID_MOVE_UP -> {
+                    userAction.onUserMove(user, -1)
+                }
 
+                ID_MOVE_DOWN -> {
+                    userAction.onUserMove(user, 1)
+                }
+
+                ID_REMOVE -> {
+                    userAction.onUserDelete(user)
+                }
+
+                ID_FIRE -> {
+                    userAction.onUserFire(user)
+                }
             }
             return@setOnMenuItemClickListener true
         }
         popupMenu.show()
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UsersViewHolder {
@@ -72,10 +113,12 @@ class RcViewAdapter(
     override fun getItemCount(): Int = users.size
     override fun onBindViewHolder(holder: UsersViewHolder, position: Int) {
         val user = users[position]
+        val context = holder.itemView.context
         with(holder.binding) {
             holder.itemView.tag = user
             moreImageViewButton.tag = user
-            userCompanyTextView.text = user.company
+            userCompanyTextView.text =
+                user.company.ifBlank { context.getString(R.string.unemployed) }
             userNameTextView.text = user.name
             if (user.photo.isNotBlank()) {
                 Glide.with(photoImageView.context)
@@ -98,5 +141,6 @@ class RcViewAdapter(
         private const val ID_MOVE_UP = 0
         private const val ID_MOVE_DOWN = 1
         private const val ID_REMOVE = 2
+        private const val ID_FIRE = 3
     }
 }

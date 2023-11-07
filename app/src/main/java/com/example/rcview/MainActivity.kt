@@ -31,6 +31,10 @@ class MainActivity : AppCompatActivity() {
             override fun onUserInfo(user: User) {
                 Toast.makeText(this@MainActivity, "User: $user", Toast.LENGTH_SHORT).show()
             }
+
+            override fun onUserFire(user: User) {
+                userService.fireUser(user)
+            }
         })
         binding.rcView.layoutManager = LinearLayoutManager(this)
         binding.rcView.adapter = adapter
