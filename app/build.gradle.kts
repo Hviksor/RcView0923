@@ -50,4 +50,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("com.github.bumptech.glide:glide:5.0.0-rc01")
+    // https://mvnrepository.com/artifact/androidx.fragment/fragment-ktx
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+
 }

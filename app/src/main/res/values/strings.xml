@@ -5,4 +5,7 @@
     <string name="remove">Remove</string>
     <string name="fire">Fire</string>
     <string name="unemployed">Unemployed</string>
+    <string name="failed_to_load_users">failed_to_load_users</string>
+    <string name="try_again">try_again</string>
+    <string name="no_users">no_users</string>
 </resources>
