@@ -1,5 +1,6 @@
 package com.example.rcview.model
 
+import com.example.rcview.UserNotFoundException
 import com.github.javafaker.Faker
 import java.util.Collections
 
@@ -42,6 +43,16 @@ class UserService {
         users = ArrayList(users)
         users[indexToFire] = modeUser
         notifyChanges()
+    }
+
+    fun getUserDetail(userId: Long): UserDetails {
+        val user = users.firstOrNull { it.id == userId }?:throw UserNotFoundException()
+        return UserDetails(
+            user = user,
+            details = Faker().lorem().paragraphs(3).joinToString("\n\n")
+        )
+
+
     }
 
     fun moveUser(user: User, moveBy: Int) {

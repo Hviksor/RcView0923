@@ -3,15 +3,13 @@ package com.example.rcview
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rcview.databinding.ActivityMainBinding
-import com.example.rcview.databinding.FragmentUsersListBinding
-import com.example.rcview.model.User
 import com.example.rcview.model.UserListener
 import com.example.rcview.model.UserService
+import com.example.rcview.screens.UserDetailFragment
 import com.example.rcview.screens.UsersListFragment
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), Navigator {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,6 +23,21 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    override fun back() {
+        onBackPressed()
+    }
+
+    override fun userDetail(userId: Long) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, UserDetailFragment.getInstance(userId))
+            .addToBackStack(null)
+            .commit()
+    }
+
+    override fun toast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
 }

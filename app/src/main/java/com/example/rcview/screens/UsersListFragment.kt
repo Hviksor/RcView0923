@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.rcview.Navigator
 import com.example.rcview.RcViewAdapter
 import com.example.rcview.UserAction
 import com.example.rcview.databinding.FragmentUsersListBinding
@@ -37,7 +38,7 @@ class UsersListFragment : Fragment() {
             }
 
             override fun onUserInfo(user: User) {
-                TODO("Not yet implemented")
+                navigator().userDetail(userId = user.id)
             }
 
             override fun onUserFire(user: User) {

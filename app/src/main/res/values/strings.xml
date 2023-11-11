@@ -8,4 +8,5 @@
     <string name="failed_to_load_users">failed_to_load_users</string>
     <string name="try_again">try_again</string>
     <string name="no_users">no_users</string>
+    <string name="user_has_been_deleted">User has been deleted</string>
 </resources>

@@ -4,7 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.rcview.App
-import com.example.rcview.model.UserService
+import com.example.rcview.Navigator
 
 class ViewModelFactory(
     private val app: App
@@ -13,6 +13,10 @@ class ViewModelFactory(
         val viewModel = when (modelClass) {
             UsersListViewModel::class.java -> {
                 UsersListViewModel(app.userService)
+            }
+
+            UsersDetailViewModel::class.java -> {
+                UsersDetailViewModel(app.userService)
             }
 
             else -> {
@@ -24,3 +28,5 @@ class ViewModelFactory(
 }
 
 fun Fragment.factory() = ViewModelFactory(requireContext().applicationContext as App)
+
+fun Fragment.navigator() = requireActivity() as Navigator
