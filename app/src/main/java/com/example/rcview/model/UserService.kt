@@ -1,8 +1,11 @@
 package com.example.rcview.model
 
 import com.example.rcview.UserNotFoundException
+import com.example.rcview.task.SimpleTask
+import com.example.rcview.task.Task
 import com.github.javafaker.Faker
 import java.util.Collections
+import java.util.concurrent.Callable
 
 typealias UserListener = (users: List<User>) -> Unit
 
@@ -10,7 +13,8 @@ class UserService {
     private val listeners = mutableSetOf<UserListener>()
     private var users = mutableListOf<User>()
 
-    init {
+    fun loadUsers(): Task<Unit> = SimpleTask(Callable {
+        Thread.sleep(2000)
         val faker = Faker.instance()
         IMAGES.shuffle()
         users = (1..100).map {
@@ -21,49 +25,47 @@ class UserService {
                 photo = IMAGES[it % IMAGES.size]
             )
         }.toMutableList()
-    }
+    })
 
-    fun getUsers(): List<User> {
-        return users
-    }
-
-    fun deleteUser(user: User) {
+    fun deleteUser(user: User): Task<Unit> = SimpleTask(Callable {
+        Thread.sleep(2000)
         val indexToDelete = users.indexOfFirst { it.id == user.id }
         if (indexToDelete != -1) {
             users = ArrayList(users)
             users.removeAt(indexToDelete)
         }
         notifyChanges()
-    }
+    })
 
-    fun fireUser(user: User) {
+    fun fireUser(user: User): Task<Unit> = SimpleTask(Callable {
+        Thread.sleep(2000)
         val indexToFire = users.indexOfFirst { it.id == user.id }
-        if (indexToFire == -1) return
+        if (indexToFire == -1) return@Callable
         val modeUser = users[indexToFire].copy(company = "")
         users = ArrayList(users)
         users[indexToFire] = modeUser
         notifyChanges()
-    }
+    })
 
-    fun getUserDetail(userId: Long): UserDetails {
-        val user = users.firstOrNull { it.id == userId }?:throw UserNotFoundException()
-        return UserDetails(
+    fun getUserDetail(userId: Long): Task<UserDetails> = SimpleTask(Callable {
+        Thread.sleep(2000)
+        val user = users.firstOrNull { it.id == userId } ?: throw UserNotFoundException()
+        return@Callable UserDetails(
             user = user,
             details = Faker().lorem().paragraphs(3).joinToString("\n\n")
         )
+    })
 
-
-    }
-
-    fun moveUser(user: User, moveBy: Int) {
+    fun moveUser(user: User, moveBy: Int): Task<Unit> = SimpleTask(Callable {
+        Thread.sleep(2000)
         val oldIndex = users.indexOfFirst { it.id == user.id }
-        if (oldIndex == -1) return
+        if (oldIndex == -1) return@Callable
         val newIndex = oldIndex + moveBy
-        if (newIndex < 0 || newIndex >= users.size) return
+        if (newIndex < 0 || newIndex >= users.size) return@Callable
         users = ArrayList(users)
         Collections.swap(users, oldIndex, newIndex)
         notifyChanges()
-    }
+    })
 
     fun addListener(listener: UserListener) {
         listeners.add(listener)
